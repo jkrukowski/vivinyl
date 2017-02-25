@@ -1,9 +1,12 @@
+import logging
 
+logger = logging.getLogger('vivinyl')
 
 class DataParser(object):
-    def get_image_uri(self, data):
+    def get_image_uri(self, data, num):
         images = data.get('images')
         if not images:
+            logger.info('{0}: No images for release'.format(num))
             return None
         image = self.get_image(images=images, image_type='primary')
         if image is None:
