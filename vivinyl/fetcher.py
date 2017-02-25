@@ -1,5 +1,6 @@
 import logging
 import logging.config
+import argparse
 import aiohttp
 import asyncio
 from downloader import ImageDownloader
@@ -67,5 +68,9 @@ async def main(ids):
 
 if __name__ == '__main__':
     logger.info('started')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('start', type=int)
+    parser.add_argument('stop', type=int)
+    args = parser.parse_args()
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(range(100)))
+    loop.run_until_complete(main(range(args.start, args.stop)))
