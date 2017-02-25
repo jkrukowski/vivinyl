@@ -2,6 +2,7 @@ import aiohttp
 import asyncio
 from .downloader import ImageDownloader
 from .parser import DataParser
+from .logger import DataLogger
 
 headers = {
     'Accept-Encoding': 'gzip',
@@ -13,10 +14,11 @@ params = {
 }
 
 class DataFetcher(object):
-    def __init__(self, ids, data_parser, downloader):
+    def __init__(self, ids, data_parser, downloader, logger):
         self.ids = ids
         self.data_parser = data_parser
         self.downloader = downloader
+        self.logger = logger
 
     async def fetch(self, session, url):
         async with session.get(url, headers=headers, params=params) as response:
@@ -31,8 +33,8 @@ class DataFetcher(object):
                 data = await self.fetch(session=session, url=url)
                 if not data:
                     continue
+                self.logger.save(data=data.get('images'), num=num)
                 image_url = self.data_parser.get_image_uri(data)
-                print('url: {0}'.format(data['images']))
                 await self.downloader.download(url=image_url, num=num)
 
     def build_url(self, num):
@@ -41,7 +43,11 @@ class DataFetcher(object):
 
 async def main(ids):
     downloader = ImageDownloader(folder_path='./data')
-    fetcher = DataFetcher(ids=ids, data_parser=DataParser(), downloader=downloader)
+    logger = DataLogger(folder_path='./logs')
+    fetcher = DataFetcher(ids=ids,
+                          data_parser=DataParser(),
+                          downloader=downloader,
+                          logger=logger)
     await fetcher.process()
 
 
