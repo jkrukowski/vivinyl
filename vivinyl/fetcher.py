@@ -28,11 +28,15 @@ class DataFetcher(object):
         self.remaining = 240
         self.min_remaining = 60
 
+    def get_header_values(self, response):
+        limit = response.headers.get('X-Discogs-Ratelimit')
+        used = response.headers.get('X-Discogs-Ratelimit-Used')
+        remaining = response.headers.get('X-Discogs-Ratelimit-Remaining', self.remaining)
+        return limit, used, int(remaining)
+
     async def fetch(self, session, url, num):
         async with session.get(url, headers=headers, params=params) as response:
-            limit = response.headers.get('X-Discogs-Ratelimit')
-            used = response.headers.get('X-Discogs-Ratelimit-Used')
-            self.remaining = response.headers.get('X-Discogs-Ratelimit-Remaining', self.remaining)
+            limit, used, self.remaining = self.get_header_values(response)
             logger.info('{0}: Limit {1} Used {2} Remaining {3}'.format(num, limit, used, self.remaining))
             if response.status != 200:
                 logger.info('{0}: Response status {1} for release'.format(num, response.status))
