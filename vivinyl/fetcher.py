@@ -19,6 +19,7 @@ params = {
 logging.config.fileConfig('./vivinyl/logging.conf')
 logger = logging.getLogger('vivinyl')
 
+
 class DataFetcher(object):
     def __init__(self, data_parser, downloader, datalogger):
         self.data_parser = data_parser
@@ -71,7 +72,11 @@ async def main(start, stop, workers, loop):
                           datalogger=datalogger)
     ids = range(start, stop, workers)
     for release_id in ids:
-        await asyncio.wait([fetcher.process(release_id+i) for i in range(workers)], loop=loop)
+        tasks = [fetcher.process(release_id + i) for i in range(workers)]
+        done, pending = await asyncio.wait(tasks,
+                                           loop=loop,
+                                           return_when=asyncio.FIRST_COMPLETED)
+        workers = workers - len(pending)
 
 
 if __name__ == '__main__':
