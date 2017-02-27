@@ -25,13 +25,15 @@ class DataFetcher(object):
         self.data_parser = data_parser
         self.downloader = downloader
         self.datalogger = datalogger
+        self.remaining = 240
+        self.min_remaining = 60
 
     async def fetch(self, session, url, num):
         async with session.get(url, headers=headers, params=params) as response:
             limit = response.headers.get('X-Discogs-Ratelimit')
             used = response.headers.get('X-Discogs-Ratelimit-Used')
-            remaining = response.headers.get('X-Discogs-Ratelimit-Remaining')
-            logger.info('{0}: Limit {1} Used {2} Remaining {3}'.format(num, limit, used, remaining))
+            self.remaining = response.headers.get('X-Discogs-Ratelimit-Remaining', self.remaining)
+            logger.info('{0}: Limit {1} Used {2} Remaining {3}'.format(num, limit, used, self.remaining))
             if response.status != 200:
                 logger.info('{0}: Response status {1} for release'.format(num, response.status))
                 return None
@@ -42,6 +44,9 @@ class DataFetcher(object):
             for num in self.ids:
                 logger.info('{0}: Started...'.format(num))
                 url = self.build_url(num)
+                if self.remaining <= self.min_remaining:
+                    logger.info('{0}: Remaining {1} sleeping'.format(num, self.remaining))
+                    await asyncio.sleep(1)
                 data = await self.fetch(session=session, url=url, num=num)
                 if not data:
                     continue
