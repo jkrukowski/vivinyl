@@ -73,10 +73,7 @@ async def main(start, stop, workers, loop):
     ids = range(start, stop, workers)
     for release_id in ids:
         tasks = [fetcher.process(release_id + i) for i in range(workers)]
-        done, pending = await asyncio.wait(tasks,
-                                           loop=loop,
-                                           return_when=asyncio.FIRST_COMPLETED)
-        workers = workers - len(pending)
+        await asyncio.wait(tasks, loop=loop)
 
 
 if __name__ == '__main__':
@@ -84,7 +81,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('start', type=int)
     parser.add_argument('stop', type=int)
+    parser.add_argument('workers', type=int, default=3)
     args = parser.parse_args()
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main(start=args.start, stop=args.stop, workers=3, loop=loop))
+    loop.run_until_complete(main(start=args.start, stop=args.stop, workers=args.workers, loop=loop))
     loop.close()
