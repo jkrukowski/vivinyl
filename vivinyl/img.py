@@ -1,6 +1,8 @@
 from PIL import Image
 import os
 from collections import Counter
+import matplotlib
+matplotlib.use('qt5agg')
 import matplotlib.pyplot as plt
 
 
@@ -17,7 +19,6 @@ def get_files(folder='./data'):
 
 def main():
     data_points = Counter((image_stat(f) for f in get_files()))
-    print(data_points)
     for x, y in data_points.keys():
         plt.scatter(x, y, s=data_points[(x, y)])
     plt.savefig('plot.png')
