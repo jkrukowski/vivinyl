@@ -1,8 +1,6 @@
 from PIL import Image
 import os
 from collections import Counter
-import matplotlib
-matplotlib.use('qt5agg')
 import matplotlib.pyplot as plt
 
 
