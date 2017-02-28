@@ -1,7 +1,7 @@
-from PIL import Image
 import os
+import pickle
 from collections import Counter
-import matplotlib.pyplot as plt
+from PIL import Image
 
 
 def image_stat(file_name):
@@ -16,10 +16,9 @@ def get_files(folder='./data'):
 
 
 def main():
-    data_points = Counter((image_stat(f) for f in get_files()))
-    for x, y in data_points.keys():
-        plt.scatter(x, y, s=data_points[(x, y)])
-    plt.savefig('plot.png')
+    data_points = Counter((image_stat(f) for f in get_files())).most_common()
+    with open('outfile.dat', 'wb') as f:
+        pickle.dump(data_points, f)
 
 
 if __name__ == '__main__':
