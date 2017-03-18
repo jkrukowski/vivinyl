@@ -1,7 +1,10 @@
-import argparse
+import logging
 import os
 from elasticsearch import Elasticsearch
 from image_match.elasticsearch_driver import SignatureES
+
+logging.config.fileConfig('./vivinyl/logging.conf')
+logger = logging.getLogger('vivinyl')
 
 
 def get_files(folder='./data'):
@@ -13,28 +16,17 @@ def get_files(folder='./data'):
 def add_files():
     es = Elasticsearch()
     ses = SignatureES(es)
-    for path in get_files():
-        ses.add_image(path)
+    n = 0
+    for file in get_files():
+        logger.info('{0} Adding file {1}'.format(n, file))
+        ses.add_image(file)
+        n += 1
 
 
-def match_file(file_path):
-    es = Elasticsearch()
-    ses = SignatureES(es)
-    result = ses.search_image(file_path, all_orientations=True)
-    print(result)
-    return result
-
-
-def main(args):
-    if args.a:
-        add_files()
-    else:
-        match_file(args.match)
+def main():
+    add_files()
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('a', action='store_false')
-    parser.add_argument('--match', type=str, default='img_1.jpg')
-    args = parser.parse_args()
-    main(args)
+    logger.info('started')
+    main()
