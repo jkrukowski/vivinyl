@@ -1,4 +1,5 @@
 import logging
+import logging.config
 import os
 from elasticsearch import Elasticsearch
 from image_match.elasticsearch_driver import SignatureES
