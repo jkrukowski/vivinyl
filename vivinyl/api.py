@@ -20,7 +20,7 @@ class ImageController(object):
             raise falcon.HTTPBadRequest('Missing content', 'Please provide jpg image is POST request body')
         data = req.bounded_stream.read()
         try:
-            result = self.ses.search_image(data, all_orientations=True, bytestream=True)
+            result = {'result': self.ses.search_image(data, all_orientations=True, bytestream=True)}
             resp.status = falcon.HTTP_200
             resp.body = json.dumps(result)
         except Exception as e:
