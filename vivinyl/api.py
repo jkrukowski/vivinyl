@@ -16,6 +16,7 @@ class ImageController(object):
         self.ses = SignatureES(self.es)
 
     def on_post(self, req, resp):
+        logging.info('received request')
         if not req.content_length:
             raise falcon.HTTPBadRequest('Missing content', 'Please provide jpg image is POST request body')
         data = req.bounded_stream.read()
